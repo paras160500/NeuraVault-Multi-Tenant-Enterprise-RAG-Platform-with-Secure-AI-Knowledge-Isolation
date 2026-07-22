@@ -1,0 +1,9 @@
+# Process of how to work on this Project 
+
+1 : Env Setup
+    - First create a backend folder which have config.py file having pydantic BaseSetting implemented
+    - Create a .env file with the Credentials which can be used in the program
+
+2 : Backend Creation
+    - create a models folder having db_models.py which have the model for our database first start with user model 
+    - create a utils folder having __init__.py and auth.py which have all the authentication code
