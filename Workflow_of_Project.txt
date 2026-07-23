@@ -27,4 +27,4 @@
             - /login 
             - /refresh 
             - /me 
-        ->
+        -> now make a rate_limiter file in middleware folder which should be in the backend to set the limit of request given by the user for not overwhelming the app 

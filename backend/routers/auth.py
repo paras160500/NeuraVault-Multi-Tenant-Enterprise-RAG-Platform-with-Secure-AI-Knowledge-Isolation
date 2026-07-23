@@ -106,6 +106,9 @@ async def refresh(refresh_token : str):
 
     # Getting the user based on the payload key name sub
     user = await User.find_one(User.user_id == payload['sub'])
+    if user:
+        print("Username :- " , user.username)
+        print("User Id :- " , user.user_id)
 
     # Check if user is available or not 
     if not user or not user.is_active:
