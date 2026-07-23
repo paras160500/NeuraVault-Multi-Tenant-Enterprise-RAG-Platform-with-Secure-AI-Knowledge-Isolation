@@ -85,5 +85,3 @@ class UserOut(BaseModel):
     username : str 
     plan : str 
     created_at : datetime
-
-

@@ -6,4 +6,25 @@
 
 2 : Backend Creation
     - create a models folder having db_models.py which have the model for our database first start with user model 
-    - create a utils folder having __init__.py and auth.py which have all the authentication code
+    
+    - create a utils folder having __init__.py and auth.py which have all the authentication basic function code
+        -> hash_password 
+        -> verify_password
+        -> create_access_tokens
+        -> create_refresh_tokens
+        -> decode_tokens
+        -> get_current_user
+
+    - Create Router folder in backend and make a Auth.py file in it having below function 
+        -> first of all go to models then db_models make pydantic request response schemas like
+            - UserCreate :- For Signup 
+            - UsageStat  :- For check how much user is using our services
+            - UserLogin  :- For Login
+            - TokenResponse :- For Response of JWT tokens 
+            - UserOut :- for getting user 
+        -> now in the Auth.py file make the below App router 
+            - /register 
+            - /login 
+            - /refresh 
+            - /me 
+        ->
