@@ -34,3 +34,56 @@ class User(Document):
                 "username" : "alice"
             }
         }
+
+#---------------------------------------------------------------------------------
+#                                   Usage Stats
+#---------------------------------------------------------------------------------
+
+class UsageStat(Document):
+    user_id : Annotated[str , Indexed(unique = True)]
+    queries_today : int = 0 
+    uploads_today : int = 0
+    total_queries : int = 0 
+    total_uploads : int = 0
+    last_reset : datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "usage_stats"
+
+    async def reset_daily(self):
+        if self.last_reset.date() < datetime.utcnow().date():
+            self.queries_today = 0
+            self.uploads_today = 0 
+            self.last_reset = datetime.utcnow()
+            await self.save()
+
+
+#---------------------------------------------------------------------------------
+#                            Pydantic Req / Resp Schemas
+#---------------------------------------------------------------------------------
+
+class UserCreate(BaseModel):
+    email : EmailStr
+    username : str
+    password : str 
+
+
+class UserLogin(BaseModel):
+    username : str 
+    password : str 
+
+
+class TokenResponse(BaseModel):
+    access_token : str 
+    refresh_token : str 
+    token_type : str = "bearer"
+
+
+class UserOut(BaseModel):
+    user_id : str 
+    email : str 
+    username : str 
+    plan : str 
+    created_at : datetime
+
+
