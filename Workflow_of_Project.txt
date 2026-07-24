@@ -28,3 +28,8 @@
             - /refresh 
             - /me 
         -> now make a rate_limiter file in middleware folder which should be in the backend to set the limit of request given by the user for not overwhelming the app 
+        -> Upload this much code to render and see the backend is working or not.
+        -> Integrate backend to frontend, fist make frontend folder outside everything and do below steps 
+            - make a requirements.txt for frontend with request and streamlit 
+            - make a file name api_client.py which can be useful for functions handling the auth only for now 
+            - make a app.py file and add signup and login in it.
