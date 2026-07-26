@@ -12,8 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.config import settings 
-from backend.models.db_models import User, UsageStat
+from backend.models.db_models import User, UsageStat,DocumentRecord
 from backend.routers import auth
+from backend.routers import documents
 from backend.middleware.rate_limiter import limiter,rate_limit_exceeded_handler
 
 logging.basicConfig(level=settings.log_level)
@@ -31,7 +32,8 @@ async def lifespan(app : FastAPI):
         database=client[settings.mongodb_db_name],
         document_models=[
             User,
-            UsageStat
+            UsageStat,
+            DocumentRecord
         ],
     )
     logger.info("MongoDB Connected ✔️")
@@ -73,6 +75,7 @@ def create_app() -> FastAPI:
 
     # Routers
     app.include_router(auth.router , prefix="/api/v1")
+    app.include_router(documents.router , prefix="/api/v1")
 
     # Health check route 
     @app.get("/health" , tags = ['System'])

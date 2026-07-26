@@ -59,6 +59,25 @@ class UsageStat(Document):
 
 
 #---------------------------------------------------------------------------------
+#                                   Usage Stats
+#---------------------------------------------------------------------------------
+
+class DocumentRecord(Document):
+    doc_id : str = Field(default_factory=lambda : str(uuid.uuid4()))
+    user_id : str 
+    filename : str                                         # Can be pdf | docx | txt
+    file_type : str 
+    chunk_count : int = 0 
+    token_count : int = 0
+    status : str = "processing"                            # Can be processing | ready | error
+    error_msg : Optional[str] = None 
+    pinecone_namespace : str = ""
+    created_at : datetime = Field(default_factory=datetime.utcnow) 
+
+    class Settings:
+        name = "documents"                                 # For telling mongodb which collection u have to add
+
+#---------------------------------------------------------------------------------
 #                            Pydantic Req / Resp Schemas
 #---------------------------------------------------------------------------------
 
@@ -85,3 +104,20 @@ class UserOut(BaseModel):
     username : str 
     plan : str 
     created_at : datetime
+
+
+class DocumentOut(BaseModel):
+    doc_id : str 
+    filename : str 
+    file_type : str 
+    chunk_count : int 
+    status : str 
+    created_at : datetime 
+
+
+class StatsOut(BaseModel):
+    queries_today : int
+    uploads_today : int
+    total_queries : int 
+    total_uploads : int 
+    document_count : int 

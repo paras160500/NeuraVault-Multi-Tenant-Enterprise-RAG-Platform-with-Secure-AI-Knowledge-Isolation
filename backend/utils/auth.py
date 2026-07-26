@@ -148,9 +148,9 @@ def decode_token(token : str) -> dict:
 
 async def get_current_user(credentials : HTTPAuthorizationCredentials = Depends(bearer_scheme))-> User:
     """
-    
+        Use with depends to get the user information from the database 
+        just for authentication. It will give the user object if its register in db.
     """
-
     payload = decode_token(credentials.credentials)
 
     # Ensure the access token

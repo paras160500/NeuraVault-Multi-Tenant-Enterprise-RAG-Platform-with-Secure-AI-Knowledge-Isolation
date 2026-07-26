@@ -1,0 +1,244 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                 🚀 PROJECT DEVELOPMENT ROADMAP 🚀                   ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📝 Project Progress Tracker
+──────────────────────────────────────────────────────────────────────
+This document contains the complete development process and milestones
+followed while building the project.
+
+======================================================================
+📌 STEP 1 : Environment Setup
+======================================================================
+
+✅ Create a backend folder
+
+    📂 backend/
+        ├── config.py
+            • Implement Pydantic BaseSettings
+            • Manage application configuration
+
+✅ Create a .env file
+
+    🔐 Store all required credentials
+        • Database URL
+        • JWT Secret
+        • Pinecone API Key
+        • OpenAI API Key
+        • Other environment variables
+
+✔️ Environment setup completed.
+
+======================================================================
+⚙️ STEP 2 : Backend Development
+======================================================================
+
+📂 Models
+
+Create:
+    📄 db_models.py
+
+Start with:
+
+    👤 User Model
+
+──────────────────────────────────────────────────────────────────────
+
+📂 Utils
+
+Create:
+
+    📁 utils/
+        ├── __init__.py
+        └── auth.py
+
+Implement Authentication Functions:
+
+    🔑 hash_password()
+    🔑 verify_password()
+    🔑 create_access_tokens()
+    🔑 create_refresh_tokens()
+    🔑 decode_tokens()
+    🔑 get_current_user()
+
+──────────────────────────────────────────────────────────────────────
+
+📂 Routers
+
+Create:
+
+    📁 Router/
+        └── Auth.py
+
+Before creating routes...
+
+📄 db_models.py
+
+Create Request / Response Schemas:
+
+    👤 UserCreate
+        ➜ Signup Request
+
+    📊 UsageStat
+        ➜ User Usage Statistics
+
+    🔐 UserLogin
+        ➜ Login Request
+
+    🎫 TokenResponse
+        ➜ JWT Response
+
+    🙋 UserOut
+        ➜ User Information
+
+──────────────────────────────────────────────────────────────────────
+
+📡 API Routes
+
+Implement:
+
+    ✅ /register
+    ✅ /login
+    ✅ /refresh
+    ✅ /me
+
+──────────────────────────────────────────────────────────────────────
+
+🛡️ Middleware
+
+Create:
+
+    📁 middleware/
+        └── rate_limiter.py
+
+Purpose:
+
+    🚦 Prevent excessive requests
+    🚦 Protect backend from abuse
+    🚦 Improve application stability
+
+──────────────────────────────────────────────────────────────────────
+
+☁️ Deployment Check
+
+🚀 Deploy backend to Render
+
+Verify:
+
+    ✅ Backend starts successfully
+    ✅ API routes work correctly
+    ✅ Database connection works
+    ✅ JWT authentication works
+
+======================================================================
+🎨 STEP 3 : Frontend Development
+======================================================================
+
+Create a separate frontend folder.
+
+📂 frontend/
+
+Create:
+
+    📄 requirements.txt
+
+Packages:
+
+    📦 requests
+    📦 streamlit
+
+──────────────────────────────────────────────────────────────────────
+
+📄 api_client.py
+
+Purpose:
+
+    🔗 Handle authentication APIs
+    🔗 Login
+    🔗 Signup
+    🔗 Token Refresh
+
+──────────────────────────────────────────────────────────────────────
+
+📄 app.py
+
+Implement:
+
+    ✅ Signup Page
+    ✅ Login Page
+
+🎉 Backend successfully connected with Frontend.
+
+======================================================================
+📚 STEP 4 : Document Upload + Pinecone Integration
+======================================================================
+
+Create:
+
+📁 services/
+    └── vector_store.py
+
+Implement Per-User Namespace Isolation
+
+Functions:
+
+    📥 upsert_chunks()
+        ➜ Upload document chunks
+
+    🔎 query()
+        ➜ Search Pinecone database
+
+    🗑️ delete_by_source()
+        ➜ Delete document using source ID
+
+    ❌ delete_namespace()
+        ➜ Delete entire user namespace
+
+    📈 namespace_stats()
+        ➜ Get namespace statistics
+
+──────────────────────────────────────────────────────────────────────
+
+📄 embeddings.py
+
+Functions:
+
+    🧠 embed_query()
+
+    🧠 embed_documents()
+
+    🧠 embed_texts()
+
+======================================================================
+🗄️ STEP 5 : Database Updates
+======================================================================
+
+Update:
+
+📄 db_models.py
+
+Add Models:
+
+    📄 DocumentRecord
+        ➜ Store uploaded document information
+
+    📊 StatsOut
+        ➜ Return statistics
+
+    📄 DocumentOut
+        ➜ Return document details
+
+======================================================================
+🎯 CURRENT STATUS
+======================================================================
+
+🟩 Environment Setup           ✅ Completed
+🟩 Authentication System       ✅ Completed
+🟩 Backend API                 ✅ Completed
+🟩 Frontend Authentication     ✅ Completed
+🟩 Pinecone Integration        🚧 In Progress
+🟩 Database Enhancements       🚧 In Progress
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 Keep Building • Keep Learning • Keep Shipping 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

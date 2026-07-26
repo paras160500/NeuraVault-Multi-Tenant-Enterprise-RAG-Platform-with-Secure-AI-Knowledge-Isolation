@@ -33,3 +33,30 @@
             - make a requirements.txt for frontend with request and streamlit 
             - make a file name api_client.py which can be useful for functions handling the auth only for now 
             - make a app.py file and add signup and login in it.
+
+    - Time to work on the document upload to pinecone, for that first we have to make a vector_store.py in services
+      with logic of per-user namespace isolation 
+        -> Make a file name vector_store.py having function like below 
+            - usert_chunks : For upload and insert the chunks 
+            - query : For querying the pinecone db 
+            - delete_by_source : For delete the doc using it id 
+            - delete_namespace : For deleting the entire namespace 
+            - namespace_stats : For get status of current namespace
+        -> Make another file for embeddings name it as same as the work embeddings.py having functions like 
+            - embed_query : For query embedding
+            - embed_documents : For document embedding
+            - embed_texts : both above function can call this function to convert into embeddings 
+        -> Now add DocumentRecord class in the db_models.py so that we can push the doc on mongo 
+        -> also add class StatsOut and class DocumentOut
+        -> Now in services make document_processor.py with below functions 
+            - _parse_pdf : For parsing PDF file 
+            - _parse_docx : For parsing DOCX file 
+            - _parse_txt : For parsing TXT file 
+            - parse_file : Return raw_text and file_type using the above three functions 
+            - ingest_document : Ingesting the document on Pinecone and MongoDB
+            - delete_document : delete the document from the Pinecone and MongoDB
+        -> Now In router make a file name documents.py having API router and add the paths in it 
+            - Add a background function for ingesting the document _background_ingest
+            - "/upload" -> upload_document() -> This will upload the document to Pinecone and MongoDB
+            - "/" -> list_documents -> Get all the document of this particular user 
+            
