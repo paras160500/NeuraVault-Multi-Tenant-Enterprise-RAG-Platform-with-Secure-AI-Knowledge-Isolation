@@ -114,3 +114,20 @@ class APIClient:
         """
         r = self.session.get(f"{BASE_URL}/documents/{doc_id}" , headers=self._headers())
         return r.json() , r.status_code()
+
+
+    #------------------------------------Stats Logic----------------------------------------
+
+    def get_stats(self) -> dict:
+        """
+            For calling the get_stats endpoint and passing the headers to them
+        """
+        r = self.session.get(f"{BASE_URL}/stats/" , headers=self._headers())
+        return r.json() , r.status_code
+    
+    def get_namespace_stats(self) -> dict:
+        """
+            For calling the getnamespace status endpoint and passing the headers to them
+        """
+        r = self.session.get(f"{BASE_URL}/stats/namespace", headers=self._headers())
+        return r.json() , r.status_code

@@ -445,7 +445,51 @@ def render_documents():
                     st.error("Delete failed")
         st.divider()
 
+#---------------------------------------------------------------------------------
+#                                   Dashboard
+#---------------------------------------------------------------------------------
 
+def render_dashboard():
+    st.markdown("##📊 Usage Dashboard")
+
+    client = get_client()
+    stats , s_code = client.get_stats()
+    ns_stats , n_code = client.get_namespace_stats()
+
+    if s_code == 200:
+        st.markdown(f"""
+            <div class='metric-row'>
+                <div class='metric-title'>
+                    <div class='value'>{stats.get('document_count' , 0)}</div>
+                    <div class='label'>Documents</div>
+                </div>
+                <div class='metric-title'>
+                    <div class='value'>{stats.get('queries_today' , 0)}</div>
+                    <div class='label'>Queries Today</div>
+                </div>
+                <div class='metric-title'>
+                    <div class='value'>{stats.get('total_queries' , 0)}</div>
+                    <div class='label'>Total Queries</div>
+                </div>
+                <div class='metric-title'>
+                    <div class='value'>{stats.get('total_uploads' , 0)}</div>
+                    <div class='label'>Total Uploads</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    if n_code == 200:
+        st.markdown("<div class='card'>",unsafe_allow_html=True)
+        st.markdown("**Pinecone Namespace**")
+        col1,col2,col3 = st.columns(3)
+        with col1:
+            st.metric("Vectors Indexed" , ns_stats.get("vector_count" , 0))
+        with col2:
+            st.metric("Queries left (this min)",ns_stats.get("queries_remaining_this_minute", "?"))
+        with col3:
+            st.metric("Plan",ns_stats.get("plan","free").upper())
+        st.markdown(f"<p style='font-size:.78rem; color:#64748b; margin-top:.5rem;'>Namespace: <code>{ns_stats.get('namespace','')}</code></p>" , unsafe_allow_html=True)
+        st.markdown("</div>" , unsafe_allow_html=True)
 
 
 #---------------------------------------------------------------------------------
@@ -460,6 +504,8 @@ def main():
         page = st.session_state.page 
         if page == "documents":
             render_documents()
+        elif page == "dashboard":
+            render_dashboard()
 
 if __name__ == "__main__":
     main()

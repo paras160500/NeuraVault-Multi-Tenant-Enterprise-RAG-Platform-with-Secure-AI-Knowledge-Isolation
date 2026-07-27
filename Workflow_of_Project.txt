@@ -59,4 +59,23 @@
             - Add a background function for ingesting the document _background_ingest
             - "/upload" -> upload_document() -> This will upload the document to Pinecone and MongoDB
             - "/" -> list_documents -> Get all the document of this particular user 
-            
+            - "/{docid} -> get_document -> Get a particular document 
+            - delete "/{doc_id}" -> remove_document -> remove a document 
+        -> Now go to frontend in that go to api_client file and add below function to it 
+            - upload_document -> For uploading document from the frontend 
+            - list_documents -> For getting all document for particular user 
+            - get_document -> For getting a particular document 
+            - delete_document -> For deleting a particular document 
+        -> Now go to the app.py in frontend 
+            - first on the init_session function set the default page as documents 
+            - add sidebar_render function for sidebar 
+            - add render_documents for documents page 
+            - in the main function change the code with like if page == "documents" then call render_documents()
+
+    - Lets work on the admin dashboard like see the status like how many document uploaded and all 
+        -> First of all make a file in backend/router name as stats.py and add below two things
+            - "/" -> get_stats -> get the stats information for a particular user 
+            - "/namespace" -> get_namespace_stats -> get status of the namespace 
+        -> Now go to frontend/api_client and add the below functions 
+            - get_stats() -> For getting current stats 
+            - get_namespace_stats() -> For getting the namespace information 
