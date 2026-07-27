@@ -29,8 +29,10 @@ async def _background_ingest(user_id:str,namespace:str, filename:str,content:byt
             doc_id(str) : id of the document
     """
     try:
+        # ingesting the document
         await ingest_document(user_id , namespace , filename,content,doc_id)
     except Exception as e:
+        # if we find the record then update the record status and error msg 
         record = await DocumentRecord.find_one(DocumentRecord.doc_id==doc_id)
         if record:
             record.status = "error"
@@ -44,7 +46,13 @@ async def upload_document(
     file:UploadFile = File(...) , 
     current_user : User = Depends(get_current_user) ):
     """
-    
+        for uploading document to the pinecone and mongodb, main purpose of
+        background task is that we dont want user to wait till it upload like
+        user can do other things while let the system work on the uploading doc
+        Args:
+            file(UploadFile) : File will go here
+        Returns:
+            Json format object of DocumentOut
     """
 
     # Rate limit check
@@ -99,6 +107,7 @@ async def upload_document(
         doc_id 
     )
 
+    # Returning the Document to user just to show them that its processing
     return DocumentOut(
         doc_id = record.doc_id,
         filename = record.filename,
@@ -114,11 +123,11 @@ async def list_documents(current_user : User = Depends(get_current_user)):
     """
         get all the document for a particular user.
         Returns:
-        1
             List[DocumentOut] -> list of document information
     """
+    # First fetch all the records for particular user
     records = await DocumentRecord.find(DocumentRecord.user_id == current_user.user_id).sort(-DocumentRecord.created_at).to_list()
-
+    # return the records in the way of list 
     return [
         DocumentOut(
             doc_id=r.doc_id,
@@ -141,9 +150,12 @@ async def get_document(doc_id : str , current_user : User = Depends(get_current_
         Returns :
             Return a DocumentOut object in json format
     """
+    # First get the document having doc_id 
     record = await DocumentRecord.find_one(DocumentRecord.doc_id == doc_id , DocumentRecord.user_id == current_user.user_id)
+    # if not found raise error 
     if not record:
         raise HTTPException(status_code=404 , detail="Document not found")
+    # If found then return in format of DocumentOut
     return DocumentOut(
         doc_id=record.doc_id,
         filename = record.filename,
@@ -161,16 +173,16 @@ async def remove_document(doc_id : str , current_user : User = Depends(get_curre
         Args:
             doc_id(str) : id of the document which we want to delete
     """
-
+    # First check if the record is there or not 
     record = await DocumentRecord.find_one(
         DocumentRecord.doc_id == doc_id,
         DocumentRecord.user_id == current_user.user_id
     )
+    # What if there is no record
     if not record:
         raise HTTPException(status_code=404 , detail="Document not found")
+    # If we find the record then delete it 
     success = await delete_document(doc_id , current_user.pinecone_namespace)
+    # If its not deleted successfully then this will raise exception 
     if not success:
         raise HTTPException(status_code=500 , detail = "Failed to delete document.")
-    return {
-        "message" : "Deleted Successfully..."
-    }

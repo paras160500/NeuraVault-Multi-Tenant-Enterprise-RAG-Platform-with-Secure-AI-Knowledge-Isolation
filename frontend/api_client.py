@@ -79,4 +79,38 @@ class APIClient:
         """
         r = self.session.get(f"{BASE_URL}/auth/me" , headers=self._headers())
         return r.json() , r.status_code
-    
+
+
+    #------------------------------------Auth Logic----------------------------------------
+
+    def upload_document(self , file_bytes : bytes , filename : str) -> dict:
+        """
+            For calling the upload document endpoint and pass the files and headers to them
+        """
+        # File upload is not having content type as json so we cant override that so we 
+        # are passing the "Authorization" key by ourself.
+        r = self.session.post(f"{BASE_URL}/documents/upload" , 
+                              files = {"file" : (filename , file_bytes)},
+                              headers={"Authorization" : f"Bearer {self.access_token}"})
+        return r.json() , r.status_code
+
+    def list_documents(self) -> dict:
+        """
+            For calling the list_document endpoint and pass the headers to them
+        """
+        r = self.session.get(f"{BASE_URL}/documents/" , headers=self._headers())
+        return r.json() , r.status_code
+
+    def delete_document(self , doc_id : str) -> int:
+        """
+            For calling the deletedocument endpoint and passing the headers to them
+        """
+        r = self.session.delete(f"{BASE_URL}/documents/{doc_id}" , headers = self._headers())
+        return r.status_code
+
+    def get_document(self,doc_id : str) -> dict:
+        """
+            For calling the get document endpoint on doc_id and passing the headers to them
+        """
+        r = self.session.get(f"{BASE_URL}/documents/{doc_id}" , headers=self._headers())
+        return r.json() , r.status_code()

@@ -253,12 +253,13 @@ def init_session():
         "username" : None,
         "user_id" : None,
         "chat_history" : [],
-        "page" : "chat"
+        "page" : "documents"
     }
 
     # now add this field to st.session_state
     for k , v in defaults.items():
-        st.session_state[k] = v
+        if k not in st.session_state:
+            st.session_state[k] = v 
 
 # Calling init session
 init_session()
@@ -307,7 +308,7 @@ def render_login():
                         st.session_state.username = me.get("username" , username)
                         st.session_state.user_id = me.get("user_id" , "")
                         st.success("Signed in!")
-                        # st.rerun()
+                        st.rerun()
                     else:
                         st.error(data.get("detail" , "Login failed"))
                 else:
@@ -334,6 +335,118 @@ def render_login():
             st.markdown("</div>" , unsafe_allow_html=True)
 
 
+#---------------------------------------------------------------------------------
+#                                   Sidebar render
+#---------------------------------------------------------------------------------
+def render_sidebar():
+    with st.sidebar:
+        st.markdown(f"<div class='logo'>Doc<span>Mind</span></div>" , unsafe_allow_html=True)
+        st.markdown(f"<p style='color:#64748b; font-size:.8rem; margin: 0 0 1.2rem;'>Signed in as <b>{st.session_state.username}</b></p>",unsafe_allow_html=True)
+        st.divider()
+
+        # Nav 
+        pages = {
+            "💬 Chat" : "chat",
+            "🗃️ Document" : "documents",
+            "📊 Dashboard" : "dashboard",
+            "📜 History" : "history"
+        }
+        for label, key in pages.items():
+            active = st.session_state.page == key 
+            if st.button(
+                label , use_container_width=True,key=f"nav_{key}",type="primary" if active else "secondary"
+            ):
+                st.session_state.page = key 
+                st.rerun()
+        st.divider()
+
+        # Stats Code here......
+
+
+        st.divider()
+        if st.button("🚪 Sign Out" , use_container_width=True):
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
+            st.rerun()
+
+
+#---------------------------------------------------------------------------------
+#                                   Document Page
+#---------------------------------------------------------------------------------
+def render_documents():
+    st.markdown("##🗃️ Knowledge Base Documents")
+
+    # upload section
+    st.markdown("<div class='card card-accent'>" , unsafe_allow_html=True)
+    st.markdown("**Upload Documents**")
+    uploaded = st.file_uploader(
+        "Drop you files here",
+        type=['pdf','txt','docx'],
+        accept_multiple_files=True,
+        label_visibility="collapsed"
+    )
+
+    if uploaded:
+        if st.button(f"Upload {len(uploaded)} file(s)", type="primary"):
+            client = get_client()
+            for f in uploaded:
+                with st.spinner(f"Uploading {f.name}..."):
+                    data,code = client.upload_document(f.read() , f.name)
+                if code == 202:
+                    st.success(f"✔️ {f.name} queues for processing")
+                elif code == 429:
+                    st.warning(f"⚠️ Daily upload limit reached")
+                    break
+                else:
+                    st.error(f"❌ {f.name} : {data.get('detail' , 'Upload failed')}")
+            st.rerun()
+    st.markdown("</div>",unsafe_allow_html=True)
+
+    # Document List 
+    client = get_client()
+    docs , code = client.list_documents()
+
+    if code != 200:
+        st.error("Failed to load documents")
+        return
+
+    if not docs:
+        st.info("No Document yet.upload you first file above.")
+        return 
+
+    st.markdown(f"**{len(docs)} document(s) in your knowledge bases**")
+    st.divider()
+
+    for doc in docs:
+        status = doc.get("status" , "unknown")
+        badge_cls = {
+            "ready" : "badge-ready",
+            "processing" : "badge-processing",
+            "error" : "badge-error",
+        }.get(status , "badge-processing")
+
+        col_name , col_meta , col_del = st.columns([3,2,1])
+        with col_name:
+            icon = {"pdf" : "📑" , "docx" : "📄" , "txt" : "📃"}.get(doc.get("file_type" , "") , "📑")
+            st.markdown(f"{icon} **{doc['filename']}**")
+        with col_meta:
+            st.markdown(
+                f"<span class='badge {badge_cls}'> {status}</span>"
+                f"<span style='color:#64748b; font-size:.8rem;'>{doc.get("chunk_count" , 0)} chunks</span>",
+                unsafe_allow_html=True
+            )
+        with col_del:
+            if st.button("🗑️" , key=f"del_{doc['doc_id']}" , help="Delete Document"):
+                code = client.delete_document(doc['doc_id'])
+                if code == 204:
+                    st.success("Deleted")
+                    st.rerun()
+                else:
+                    st.error("Delete failed")
+        st.divider()
+
+
+
 
 #---------------------------------------------------------------------------------
 #                                   App Router
@@ -342,6 +455,11 @@ def render_login():
 def main():
     if not st.session_state.access_token:
         render_login()
+    else:
+        render_sidebar()
+        page = st.session_state.page 
+        if page == "documents":
+            render_documents()
 
 if __name__ == "__main__":
     main()
