@@ -11,7 +11,7 @@
 
 ### 🔐 Multi-Tenant Enterprise RAG Platform with Secure AI Knowledge Isolation
 
-![Architecture Diagram](diagram.png)
+
 
 <br/>
 
@@ -33,6 +33,8 @@
 </div>
 
 ---
+
+![Architecture Diagram](diagram.png)
 
 ## 🧠 What is NeuraVault?
 
