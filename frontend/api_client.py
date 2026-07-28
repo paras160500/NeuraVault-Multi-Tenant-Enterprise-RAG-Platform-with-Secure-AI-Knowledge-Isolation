@@ -131,3 +131,21 @@ class APIClient:
         """
         r = self.session.get(f"{BASE_URL}/stats/namespace", headers=self._headers())
         return r.json() , r.status_code
+
+
+    #------------------------------------Query Logic----------------------------------------
+    
+    def query(self , question : str , top_k : int =5 , temperature : float = 0.3) -> dict:
+        r = self.session.post(
+            f"{BASE_URL}/query/",
+            json={"query" : question , "top_k" : top_k , "temperature" : temperature},
+            headers = self._headers()
+        )
+        return r.json() , r.status_code
+
+    def qurey_history(self,limit : int = 20) -> dict:
+        r = self.session.get(
+            f"{BASE_URL}/query/history?limit={limit}",
+            headers = self._headers()
+        )
+        return r.json() , r.status_code

@@ -77,6 +77,25 @@ class DocumentRecord(Document):
     class Settings:
         name = "documents"                                 # For telling mongodb which collection u have to add
 
+
+#---------------------------------------------------------------------------------
+#                                   Query Log
+#---------------------------------------------------------------------------------
+
+class QueryLog(Document):
+    log_id : str = Field(default_factory=lambda : str(uuid.uuid4()))
+    user_id : str 
+    query : str 
+    answer : str 
+    sources : List[str] = []
+    latency_ms : int = 0
+    tokens_used : int = 0
+    created_at : datetime = Field(default_factory=datetime.utcnow)
+
+    class Settings:
+        name = "query_logs"
+
+
 #---------------------------------------------------------------------------------
 #                            Pydantic Req / Resp Schemas
 #---------------------------------------------------------------------------------
@@ -121,3 +140,16 @@ class StatsOut(BaseModel):
     total_queries : int 
     total_uploads : int 
     document_count : int 
+
+
+class QueryRequest(BaseModel):
+    query : str 
+    top_k : int = 5 
+    temperature : float = 0.3
+
+
+class QueryResponse(BaseModel):
+    answer : str 
+    sources : List[str]
+    latency_ms : int 
+    tokens_used : int 

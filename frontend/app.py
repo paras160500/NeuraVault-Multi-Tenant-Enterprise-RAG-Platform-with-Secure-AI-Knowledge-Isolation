@@ -253,7 +253,7 @@ def init_session():
         "username" : None,
         "user_id" : None,
         "chat_history" : [],
-        "page" : "documents"
+        "page" : "chat"
     }
 
     # now add this field to st.session_state
@@ -374,7 +374,7 @@ def render_sidebar():
 #                                   Document Page
 #---------------------------------------------------------------------------------
 def render_documents():
-    st.markdown("##🗃️ Knowledge Base Documents")
+    st.markdown("## 🗃️ Knowledge Base Documents")
 
     # upload section
     st.markdown("<div class='card card-accent'>" , unsafe_allow_html=True)
@@ -450,7 +450,7 @@ def render_documents():
 #---------------------------------------------------------------------------------
 
 def render_dashboard():
-    st.markdown("##📊 Usage Dashboard")
+    st.markdown("## 📊 Usage Dashboard")
 
     client = get_client()
     stats , s_code = client.get_stats()
@@ -493,6 +493,135 @@ def render_dashboard():
 
 
 #---------------------------------------------------------------------------------
+#                                   Chat Page
+#---------------------------------------------------------------------------------
+
+def render_chat():
+    st.markdown("## 💬 Chat with your Knowledge Base")
+
+    # Settings expander 
+    with st.expander("⚙️ Generation settings" , expanded=False):
+        col_a , col_b = st.columns(2)
+        with col_a:
+            top_k = st.slider("Retrieved Chunks (top_k)",1,10,5)
+        with col_b:
+            temperature = st.slider("LLM Temperature" , 0.0 , 1.0,0.3,0.05)
+
+    # Chat history
+    chat_container = st.container()
+    with chat_container:
+        if not st.session_state.chat_history:
+            st.markdown("""
+            <div class='card' style='text-align:center; padding:2rem; color:#64748b;'>
+                <div style='font-size:2.5rem'>🧠</div>
+                <p style='margin:.5rem 0 0;'>Ask anything about your uploaded documents</p>
+                <p style='font-size:.8rem; margin:.25rem 0 0;'>Upload files in the <b>Documents</b> tab first</p>
+            </div>
+            """ , unsafe_allow_html=True)
+        else:
+            for msg in st.session_state.chat_history:
+                if msg['role'] == "user":
+                    st.markdown(f"""
+                        <div class='chat-user'>
+                            <div>
+                                <div class='bubble'>{msg['content']}</div>
+                            </div>
+                        </div>
+                    """ , unsafe_allow_html=True)
+                else:
+                    sources_html = "".join(
+                        f"<span class='source-chip'>{s}</span>"
+                        for s in msg.get("meta" , {}).get("sources" , [])
+                    )
+                    meta = msg.get("meta" , {})
+                    
+                    st.markdown(f"""
+                        <div class='chat-ai'>
+                            <div>
+                                <div class='bubble'>{msg['content']}</div>
+                                <div class='chat-meta'>
+                                    ⚡ {meta.get('latency_ms','?')}ms &nbsp;·&nbsp;
+                                    🔢 {meta.get('tokens_used','?')} tokens
+                                    &nbsp;{sources_html}
+                                </div>
+                            </div>
+                        </div>
+                    """ , unsafe_allow_html=True)
+
+    st.divider()
+
+    # Input
+    col_input , col_btn = st.columns([5,1])  
+    with col_input:
+        user_input = st.text_input(
+            "Message" , key="chat_input",placeholder="Ask about your documents...",label_visibility="collapsed"
+        )
+    with col_btn:
+        send = st.button("Send ➜",use_container_width=True)
+
+    if send and user_input.strip():
+        st.session_state.chat_history.append({"role" : "user" , "content" : user_input})
+
+        with st.spinner("Thinking..."):
+            client = get_client()
+            data , code = client.query(user_input , top_k=top_k , temperature=temperature)
+
+        if code == 200:
+            st.session_state.chat_history.append({
+                "role" : "ai",
+                "content" : data['answer'],
+                "meta" : {
+                    "sources" : data.get("sources" , []),
+                    "latency_ms" : data.get("latency_ms" , 0),
+                    "tokens_used" : data.get("tokens_used" , 0)
+                }
+            })
+        elif code == 429:
+            st.warning(data.get("detail" , "Rate limit hit. Please wait."))
+        else:
+            st.error(data.get("detail" , "Query failed"))
+
+        st.rerun()
+
+    if st.session_state.chat_history:
+        if st.button("🗑️ Clear chat"):
+            st.session_state.chat_history = []
+            st.rerun()
+
+
+#---------------------------------------------------------------------------------
+#                                   History Page
+#---------------------------------------------------------------------------------
+
+def render_history():
+    st.markdown("## 📜 Query History")
+    client = get_client()
+    history, code = client.qurey_history(limit=50)
+
+    if code != 200:
+        st.error("Failed to load history")
+        return
+
+    if not history:
+        st.info("No query hisotry yet.")
+        return 
+
+    for item in history:
+        with st.expander(f"🔬 {item['query'][:80]}..." , expanded=False):
+            st.markdown(f"**Answer** {item['answer']}")
+            if item.get("sources"):
+                sources_html = "".join(f"<span class='source-chip'>{s}</span>" for s in item['sources'])
+                st.markdown(f"**Sources:** {sources_html}" , unsafe_allow_html=True)
+            st.markdown(
+                f"<span style='font-size:.75rem; color:#64748b;'>"
+                f"⚡ {item['latency_ms']}ms · 🔢 {item['token_used']} tokens · "
+                f"🕐 {item['created_at'][:16].replace('T',' ')}"
+                f"</span>",
+                unsafe_allow_html=True,
+            )
+
+
+#---------------------------------------------------------------------------------
 #                                   App Router
 #---------------------------------------------------------------------------------
 
@@ -506,6 +635,10 @@ def main():
             render_documents()
         elif page == "dashboard":
             render_dashboard()
+        elif page == "chat":
+            render_chat()
+        elif page == "history":
+            render_history()
 
 if __name__ == "__main__":
     main()

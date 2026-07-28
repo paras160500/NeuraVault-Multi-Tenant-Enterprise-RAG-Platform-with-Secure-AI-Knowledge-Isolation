@@ -79,3 +79,17 @@
         -> Now go to frontend/api_client and add the below functions 
             - get_stats() -> For getting current stats 
             - get_namespace_stats() -> For getting the namespace information 
+        -> Time to go to the frontend/app and make changes like below 
+            - first make a function call render render_dashboard which will make the view for data 
+            - Then make a change in App router section by adding render_dashboard to it as page.
+
+    - Time to work on the Query and rag pipeline so that each user can ask question about the document upload
+        -> First go to models/db_models and make class name QueryLog, QueryRequest, QueryResponse 
+        -> Go to backend/services and make a rag_pipeline.py file having the functionality like below 
+            - make a SYSTEM_PROMPT with having system prompt 
+            - make a function name _build_user_prompt for generate user_prompt 
+            - make a function name run_rag for main rag logic 
+            - make a _log_query function for pushing the query infor on the MongoDB
+        -> Go to backend/routers make a file name query.py having the functionality like below 
+            - "/" -> query_knowledge_base -> for quering the knowledge base 
+            - "/history" -> query_history -> for getting the hisotry from the MongoDB
