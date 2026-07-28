@@ -93,3 +93,12 @@
         -> Go to backend/routers make a file name query.py having the functionality like below 
             - "/" -> query_knowledge_base -> for quering the knowledge base 
             - "/history" -> query_history -> for getting the hisotry from the MongoDB
+        -> Go to frontend/api_client and add the two function as below 
+            - query -> for doing post request on the backend url where to ask query
+            - query_history -> for doing post request on the backend for query history
+        -> Go to frontend/app and add below things to it 
+            - render_hisotry() -> For showing the history of chat to user 
+            - render_chat() -> For chat UI setup 
+            - Go to main function and add this two pages to the if else condition so switching between page can be done.
+
+    - Time to final check the ui and backend and if needed then take help of any LLM model to add more advance CSS to make it feel better.

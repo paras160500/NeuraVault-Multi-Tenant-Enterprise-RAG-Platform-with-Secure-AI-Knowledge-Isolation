@@ -1,11 +1,12 @@
 ╔══════════════════════════════════════════════════════════════════════╗
-║                 🚀 PROJECT DEVELOPMENT ROADMAP 🚀                   ║
+║                 🚀 PROJECT DEVELOPMENT ROADMAP 🚀                     ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
 📝 Project Progress Tracker
 ──────────────────────────────────────────────────────────────────────
 This document contains the complete development process and milestones
-followed while building the project.
+followed while building the project — a multi-user, authenticated RAG
+platform with document upload, vector search, and a chat-based Q&A UI.
 
 ======================================================================
 📌 STEP 1 : Environment Setup
@@ -30,7 +31,7 @@ followed while building the project.
 ✔️ Environment setup completed.
 
 ======================================================================
-⚙️ STEP 2 : Backend Development
+⚙️ STEP 2 : Backend Development — Authentication
 ======================================================================
 
 📂 Models
@@ -131,7 +132,7 @@ Verify:
     ✅ JWT authentication works
 
 ======================================================================
-🎨 STEP 3 : Frontend Development
+🎨 STEP 3 : Frontend Development — Auth Pages
 ======================================================================
 
 Create a separate frontend folder.
@@ -204,10 +205,9 @@ Functions:
 Functions:
 
     🧠 embed_query()
-
     🧠 embed_documents()
-
     🧠 embed_texts()
+        ➜ Shared helper called by both functions above
 
 ======================================================================
 🗄️ STEP 5 : Database Updates
@@ -229,6 +229,162 @@ Add Models:
         ➜ Return document details
 
 ======================================================================
+🧩 STEP 6 : Document Processor + Document Router
+======================================================================
+
+📂 services/
+
+Create:
+
+    📄 document_processor.py
+
+Functions:
+
+    📕 _parse_pdf()
+        ➜ Parse PDF files
+
+    📘 _parse_docx()
+        ➜ Parse DOCX files
+
+    📄 _parse_txt()
+        ➜ Parse TXT files
+
+    🧾 parse_file()
+        ➜ Returns raw_text + file_type
+
+    ⬆️ ingest_document()
+        ➜ Ingest into Pinecone + MongoDB
+
+    🗑️ delete_document()
+        ➜ Remove from Pinecone + MongoDB
+
+──────────────────────────────────────────────────────────────────────
+
+📂 router/
+
+Create:
+
+    📄 documents.py
+
+Implement:
+
+    🧵 _background_ingest()
+        ➜ Background task for ingestion
+
+    ✅ POST   /upload      → upload_document()
+    ✅ GET    /            → list_documents()
+    ✅ GET    /{doc_id}    → get_document()
+    ✅ DELETE /{doc_id}    → remove_document()
+
+──────────────────────────────────────────────────────────────────────
+
+🎨 Frontend Integration
+
+Update 📄 api_client.py:
+
+    ⬆️ upload_document()
+    📋 list_documents()
+    📄 get_document()
+    🗑️ delete_document()
+
+Update 📄 app.py:
+
+    ⚙️ init_session()      → default page = "documents"
+    🧭 sidebar_render()    → sidebar navigation
+    📑 render_documents()  → documents page UI
+    🔀 main()              → route to render_documents()
+
+======================================================================
+📊 STEP 7 : Admin Dashboard
+======================================================================
+
+📂 backend/router/
+
+Create:
+
+    📄 stats.py
+
+Implement:
+
+    ✅ GET /            → get_stats()
+    ✅ GET /namespace   → get_namespace_stats()
+
+──────────────────────────────────────────────────────────────────────
+
+🎨 Frontend Integration
+
+Update 📄 api_client.py:
+
+    📊 get_stats()
+    🧬 get_namespace_stats()
+
+Update 📄 app.py:
+
+    📈 render_dashboard()  → build the dashboard view
+    🔀 main()              → register render_dashboard() as a page
+
+======================================================================
+💬 STEP 8 : Query & RAG Pipeline
+======================================================================
+
+Update 📄 db_models.py:
+
+    📄 QueryLog
+    📄 QueryRequest
+    📄 QueryResponse
+
+──────────────────────────────────────────────────────────────────────
+
+📂 backend/services/
+
+Create:
+
+    📄 rag_pipeline.py
+
+Implement:
+
+    🧠 SYSTEM_PROMPT           → the system prompt for the LLM
+    ✏️ _build_user_prompt()    → construct the user prompt
+    ⚙️ run_rag()               → main RAG logic
+    🗒️ _log_query()            → log query info to MongoDB
+
+──────────────────────────────────────────────────────────────────────
+
+📂 backend/routers/
+
+Create:
+
+    📄 query.py
+
+Implement:
+
+    ✅ POST /           → query_knowledge_base()
+    ✅ GET  /history    → query_history()
+
+──────────────────────────────────────────────────────────────────────
+
+🎨 Frontend Integration
+
+Update 📄 api_client.py:
+
+    💬 query()            → ask a question
+    🕘 query_history()    → fetch chat history
+
+Update 📄 app.py:
+
+    🕘 render_history()   → show chat history
+    💬 render_chat()      → chat UI setup
+    🔀 main()             → wire up chat + history pages
+
+======================================================================
+✨ STEP 9 : Final Polish
+======================================================================
+
+    🎨 Review the entire UI + backend end-to-end
+    ✨ (Optional) Use an LLM to help add advanced custom CSS
+    🧹 Clean up unused code and confirm all routes are documented
+
+======================================================================
 🎯 CURRENT STATUS
 ======================================================================
 
@@ -236,8 +392,12 @@ Add Models:
 🟩 Authentication System       ✅ Completed
 🟩 Backend API                 ✅ Completed
 🟩 Frontend Authentication     ✅ Completed
-🟩 Pinecone Integration        🚧 In Progress
-🟩 Database Enhancements       🚧 In Progress
+🟩 Pinecone Integration        ✅ Completed
+🟩 Database Enhancements       ✅ Completed
+🟩 Document Processor + Router ✅ Completed
+🟩 Admin Dashboard             ✅ Completed
+🟩 RAG Pipeline + Query Router ✅ Completed
+🟩 UI / CSS Polish             🚧 In Progress
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 Keep Building • Keep Learning • Keep Shipping 🚀
