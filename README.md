@@ -11,8 +11,6 @@
 
 ### 🔐 Multi-Tenant Enterprise RAG Platform with Secure AI Knowledge Isolation
 
-
-
 <br/>
 
 [![Frontend](https://img.shields.io/badge/🖥️_Live_App-Streamlit_Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://f6fatjpcgdgnmqk8keai5h.streamlit.app/)
